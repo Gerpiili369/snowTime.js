@@ -1,0 +1,19 @@
+{
+  "name": "snowtime",
+  "version": "1.7.1",
+  "description": "Time and Snowflake function library.",
+  "main": "snowTime.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gerpiili369/snowTime.js.git"
+  },
+  "author": "Gerpiili369",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Gerpiili369/snowTime.js/issues"
+  },
+  "homepage": "https://github.com/Gerpiili369/snowTime.js#readme"
+}
