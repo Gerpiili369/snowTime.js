@@ -1,6 +1,6 @@
 {
   "name": "snowtime",
-  "version": "1.7.1",
+  "version": "1.8.0",
   "description": "Time and Snowflake function library.",
   "main": "snowTime.js",
   "scripts": {
