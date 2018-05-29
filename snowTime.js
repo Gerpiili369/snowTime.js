@@ -164,6 +164,16 @@ module.exports = {
     /**
      * @returns {String}
      */
+    currentTimezone() {
+        const time = new Date().toString();
+        timezone = time.substring(time.indexOf('GMT')+3, time.indexOf('GMT')+8).split('');
+        timezone.splice(3, 0, ':');
+        return timezone.join('');
+    },
+
+    /**
+     * @returns {String}
+     */
     info() {
         return 'Time and Snowflake function library.';
     }
