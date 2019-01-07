@@ -1,191 +1,167 @@
-module.exports = {
-    /**
-     * @arg {String} input
-     * @returns {Number|String}
-     */
-    anyTimeToMs(input) {
-        if (!input) return 'Invalid input!';
+/**
+ * @arg {String} input
+ * @returns {Number|String}
+ */
+class Uptime {
+        constructor(start = Date.now(), end = Date.now()) {
+        this.start = start;
+        this.end = end;
+        this.ms = this.end - this.start;
+        this.s = Math.floor(this.ms / 1000);
+        this.ms -= this.s * 1000;
+        this.min = Math.floor(this.s / 60);
+        this.s -= this.min * 60;
+        this.h = Math.floor(this.min / 60);
+        this.min -= this.h * 60;
+        this.d = Math.floor(this.h / 24);
+        this.h -= this.d * 24;
+        this.y = Math.floor(this.d / 365);
+        this.d -= this.y * 365;
+    }
 
-        let
-            num = [],
-            unit = [],
-            outOfNumbers = false;
+    toString() {
+        return (this.y > 0 ? this.y + ' year(s), ' : '') +
+            (this.d > 0 ? this.d + ' day(s), ' : '') +
+            (this.h > 0 ? this.h + ' hour(s), ' : '') +
+            (this.min > 0 ? this.min + ' minute(s), ' : '') +
+            this.s + ' second(s)';
+    }
 
-        input = input.split('');
+    toMs() {
+        return this.end - this.start;
+    }
 
-        for (let i = 0; i < input.length; i++) {
-            if (!isNaN(input[i])) {
-                if (!outOfNumbers) {
-                    num.push(input[i])
-                } else return('Numbers after letters not allowed!');
-            } else {
-                outOfNumbers = true;
-                unit.push(input[i]);
-            }
-        }
+    toSeconds() {
+        return Math.round(toMs() / 10000) / 10;
+    }
 
-        if (num.length === 0) num = ['1'];
+    toMinutes() {
+        return Math.round(this.toSeconds() / 600) / 10;
+    }
 
-        num = Number(num.join(''));
-        unit = unit.join('');
+    toHours() {
+        return Math.round(this.toMinutes() / 600) / 10;
+    }
 
-        if (unit === '') return 'Unit missing!';
+    toDays() {
+        return Math.round(this.toHours() / 240) / 10;
+    }
 
-        switch (unit) {
-            case 'y':
-                num *= 365;
-            case 'd':
-                num *= 24;
-            case 'h':
-                num *= 60;
-            case 'min':
-                num *= 60;
-            case 's':
-                num *= 1000;
-            case 'ms':
-                return num;
-            default:
-                return 'Incorrect unit!'
-        }
-    },
+    toWeeks() {
+        return Math.round(this.toDays() / 70) / 10;
+    }
 
-    /**
-     * @arg {Date} start
-     * @arg {Date} [end]
-     * @returns {Uptime}
-     */
-    calculateUptime(start,end = Date.now(),msOnly = false) {
-        let uptime = {};
+    toMonths() {
+        return Math.round(this.toDays() / 300) / 10;
+    }
 
-        uptime.ms = end - start;
-        if (msOnly) return uptime;
-        uptime.s = Math.floor(uptime.ms / 1000);
-        uptime.ms -= uptime.s * 1000;
-        uptime.min = Math.floor(uptime.s / 60);
-        uptime.s -= uptime.min * 60;
-        uptime.h = Math.floor(uptime.min / 60);
-        uptime.min -= uptime.h * 60;
-        uptime.d = Math.floor(uptime.h / 24);
-        uptime.h -= uptime.d * 24;
-        uptime.y = Math.floor(uptime.d / 365);
-        uptime.d -= uptime.y * 365;
+    toYears() {
+        return Math.round(this.toDays() / 3650) / 10;
+    }
+}
 
-        return uptime;
-    },
+function anyTimeToMs(input) {
+    let num = '', unit;
 
-    /**
-    * @arg {Uptime} uptime
-    * @returns {string}
-    */
-    uptimeToString(uptime) {
-        let string =
-            `${(uptime.y > 0) ? `${uptime.y} year(s), ` : ''}` +
-            `${(uptime.d > 0) ? `${uptime.d} day(s), ` : ''}` +
-            `${(uptime.h > 0) ? `${uptime.h} hour(s), ` : ''}` +
-            `${(uptime.min > 0) ? `${uptime.min} minute(s), ` : ''}` +
-            `${uptime.s} second(s)`
-        return string;
-    },
+    if (!input) return 'Invalid input!';
+    for (const char of input) if (!isNaN(char)) {
+        num += char;
+    } else {
+        unit = char;
+        break;
+    }
 
-    /**
-     * @arg {Snowflake} id
-     * @returns {Date}
-     */
-    sfToDate(id) {
-        return new Date(id / Math.pow(2,22) + 1420070400000);
-    },
+    if (!num) num = 1;
+    else num = Number(num);
 
-    /**
-     * @arg {String} input
-     * @returns {Snowflake}
-    */
-    snowmaker(input) {
-        let sf = [];
-
-        input = input.split(' ').join('').split('');
-        input.forEach((v,i,a) => {if (!isNaN(Number(v))) sf.push(v);});
-
-        return sf.join('');
-    },
-
-    /**
-     * @arg {String} dateString
-     * @returns {Date}
-     */
-    datemaker(dateString) {
-        let date, current = new Date().toISOString();
-        if (dateString.indexOf('T') == -1) {
-            dateString = `${current.substring(0,current.indexOf('T'))}T` + dateString;
-            date = new Date(dateString);
-            if (date < new Date()) {
-                date.setDate(date.getDate()+1);
-            }
-        } else {
-            date = new Date(dateString);
-        }
-
-        return date;
-    },
-
-    /**
-     * @arg {String} tz
-     * @returns {Boolean}
-     */
-    isValidTimezone(tz) {
-        if (tz === 'Z' || tz === 'z') return false;
-        return new Date(`2017-12-08T12:36:24${tz}`) != 'Invalid Date' ? true : false;
-    },
-
-    /**
-     * @arg {String} timezone
-     * @arg {Date} d
-     * @returns {String}
-     */
-    timeAt(timezone, d = new Date()) {
-        const tz = timezone.split(':');
-
-        d.setHours(d.getHours() + Number(tz[0]) + Number(tz[1]/60));
-
-        return d.toUTCString().replace('GMT', 'UTC') + `${timezone}`;
-    },
-    
-    /**
-     * @arg {Object} tz
-     * @arg {Array} keys
-     * @returns {String}
-     */
-    findTimeZone(tz, keys) {
-        for (let i = 0; i < keys.length; i++) {
-            if (tz[keys[i]] && isValidTimezone(tz[keys[i]])) return tz[keys[i]];
-        }
-        return '+00:00';
-    },
-
-    /**
-     * @returns {String}
-     */
-    currentTimezone() {
-        const time = new Date().toString();
-        timezone = time.substring(time.indexOf('GMT')+3, time.indexOf('GMT')+8).split('');
-        timezone.splice(3, 0, ':');
-        return timezone.join('');
-    },
-
-    /**
-     * @returns {String}
-     */
-    info() {
-        return 'Time and Snowflake function library.';
+    if (!unit) return 'Unit missing!';
+    switch (unit) {
+        case 'y': num *= 365;
+        case 'd': num *= 24;
+        case 'h': num *= 60;
+        case 'min': num *= 60;
+        case 's': num *= 1000;
+        case 'ms':
+            return num;
+        default:
+            return 'Incorrect unit!'
     }
 }
 
 /**
-* @typedef {String} Snowflake
-* @typedef {Object} Uptime
-* @property {number} ms
-* @property {number} s
-* @property {number} min
-* @property {number} h
-* @property {number} day
-* @property {number} year
+ * @arg {String} input
+ * @returns {Snowflake}
+*/
+function stripNaNs(input = '') {
+    let result = '';
+    for (const char of input) if (!isNaN(char)) result += char;
+    return result;
+}
+
+/**
+ * @arg {String} dateString
+ * @returns {Date}
  */
+function datemaker(dateString = '') {
+    const current = new Date().toISOString();
+    let date;
+    if (dateString.indexOf('T') < 0) {
+        date = new Date(`${ current.substring(0, current.indexOf('T')) }T${ dateString }`);
+        if (date < new Date()) date.setDate(date.getDate() + 1);
+    } else date = new Date(dateString);
+
+    return date;
+}
+
+/**
+ * @arg {String} tz
+ * @returns {Boolean}
+ */
+function isValidTimezone(tz = '') {
+    if (tz.toLowerCase() === 'z') return false;
+    return new Date(`2017-12-08T12:36:24${ tz }`) !== 'Invalid Date';
+}
+
+/**
+ * @arg {String} timezone
+ * @arg {Date} d
+ * @returns {String}
+ */
+function timeAt(timezone, d = new Date()) {
+    const tz = timezone.split(':');
+    d.setHours(d.getHours() + Number(tz[0]) + Number(tz[1] / 60));
+    return d.toUTCString().replace('GMT', 'UTC') + `${ timezone }`;
+}
+
+/**
+ * @arg {Object} tz
+ * @arg {Array} keys
+ * @returns {String}
+ */
+function findTimeZone(tz, keys) {
+    for (const key of keys) if (tz[key] && isValidTimezone(tz[key])) return tz[key];
+    return '+00:00';
+}
+
+/**
+ * @returns {String}
+ */
+function currentTimezone() {
+    const time = new Date().toString();
+    timezone = time.substring(time.indexOf('GMT') + 3, time.indexOf('GMT') + 8).split('');
+    timezone.splice(3, 0, ':');
+    return timezone.join('');
+}
+
+module.exports = {
+    Uptime,
+    anyTimeToMs,
+    stripNaNs,
+    datemaker,
+    isValidTimezone,
+    timeAt,
+    findTimeZone,
+    currentTimezone,
+    sfToDate: id => new Date(id / Math.pow(2, 22) + 1420070400000),
+    info: 'Time and Snowflake function library.',
+}
