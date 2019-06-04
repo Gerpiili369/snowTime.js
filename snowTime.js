@@ -3,7 +3,7 @@
  * @returns {Number|String}
  */
 class Uptime {
-        constructor(start = Date.now(), end = Date.now()) {
+    constructor(start = Date.now(), end = Date.now()) {
         this.start = start;
         this.end = end;
         this.ms = this.end - this.start;
@@ -20,11 +20,13 @@ class Uptime {
     }
 
     toString() {
-        return (this.y > 0 ? this.y + ' year(s), ' : '') +
-            (this.d > 0 ? this.d + ' day(s), ' : '') +
-            (this.h > 0 ? this.h + ' hour(s), ' : '') +
-            (this.min > 0 ? this.min + ' minute(s), ' : '') +
-            this.s + ' second(s)';
+        return (
+            `${ this.y > 0 ? `${ this.y } year(s), ` : ''
+            }${ this.d > 0 ? `${ this.d } day(s), ` : ''
+            }${ this.h > 0 ? `${ this.h } hour(s), ` : ''
+            }${ this.min > 0 ? `${ this.min } minute(s), ` : ''
+            }${ this.s } second(s)`
+        );
     }
 
     toMs() {
@@ -32,7 +34,7 @@ class Uptime {
     }
 
     toSeconds() {
-        return Math.round(toMs() / 10000) / 10;
+        return Math.round(this.toMs() / 10000) / 10;
     }
 
     toMinutes() {
@@ -61,18 +63,18 @@ class Uptime {
 }
 
 function anyTimeToMs(input) {
-    let num = '', unit;
+    let
+        num = '',
+        unit = '';
 
     if (!input) return 'Invalid input!';
-    for (const char of input) if (!isNaN(char)) {
+    for (const char of input) if (isNaN(char))
+        unit += char;
+    else
         num += char;
-    } else {
-        unit = char;
-        break;
-    }
 
-    if (!num) num = 1;
-    else num = Number(num);
+    if (num) num = Number(num);
+    else num = 1;
 
     if (!unit) return 'Unit missing!';
     switch (unit) {
@@ -84,7 +86,7 @@ function anyTimeToMs(input) {
         case 'ms':
             return num;
         default:
-            return 'Incorrect unit!'
+            return 'Incorrect unit!';
     }
 }
 
@@ -104,11 +106,11 @@ function stripNaNs(input = '') {
  */
 function datemaker(dateString = '') {
     const current = new Date().toISOString();
-    let date;
+    let date = new Date(dateString);
     if (dateString.indexOf('T') < 0) {
         date = new Date(`${ current.substring(0, current.indexOf('T')) }T${ dateString }`);
         if (date < new Date()) date.setDate(date.getDate() + 1);
-    } else date = new Date(dateString);
+    }
 
     return date;
 }
@@ -127,10 +129,10 @@ function isValidTimezone(tz = '') {
  * @arg {Date} d
  * @returns {String}
  */
-function timeAt(timezone, d = new Date()) {
+function timeAt(timezone, date = new Date()) {
     const tz = timezone.split(':');
-    d.setHours(d.getHours() + Number(tz[0]) + Number(tz[1] / 60));
-    return d.toUTCString().replace('GMT', 'UTC') + `${ timezone }`;
+    date.setHours(date.getHours() + Number(tz[0]) + Number(tz[1] / 60));
+    return date.toUTCString().replace('GMT', 'UTC') + timezone;
 }
 
 /**
@@ -147,8 +149,9 @@ function findTimeZone(tz, keys) {
  * @returns {String}
  */
 function currentTimezone() {
-    const time = new Date().toString();
-    timezone = time.substring(time.indexOf('GMT') + 3, time.indexOf('GMT') + 8).split('');
+    const
+        time = new Date().toString(),
+        timezone = time.substring(time.indexOf('GMT') + 3, time.indexOf('GMT') + 8).split('');
     timezone.splice(3, 0, ':');
     return timezone.join('');
 }
@@ -162,6 +165,6 @@ module.exports = {
     timeAt,
     findTimeZone,
     currentTimezone,
-    sfToDate: id => new Date(id / Math.pow(2, 22) + 1420070400000),
+    sfToDate: id => new Date((id / Math.pow(2, 22)) + 1420070400000),
     info: 'Time and Snowflake function library.',
-}
+};
