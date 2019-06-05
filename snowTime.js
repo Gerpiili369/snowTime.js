@@ -120,7 +120,7 @@ function datemaker(dateString = '') {
  * @returns {Boolean}
  */
 function isValidTimezone(tz) {
-    if (typeof tz == 'string && tz.toLowerCase() === 'z') return false;
+    if (typeof tz == 'string' && tz.toLowerCase() === 'z') return false;
     return new Date(`2017-12-08T12:36:24${ tz }`) !== 'Invalid Date';
 }
 
